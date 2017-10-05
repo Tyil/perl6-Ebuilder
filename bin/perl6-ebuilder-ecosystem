@@ -39,7 +39,7 @@ sub MAIN
 			# Check the git repo itself to find out if there's tagged releases,
 			# and create a specific ebuild for every release if they have
 
-			my Str $ebuild = make-ebuild(%meta);
+			my Str $ebuild = try make-ebuild(%meta) // die "nope";
 			my Str $atom-name = atom-name(%meta<name>, 9999);
 
 			# Save ebuild
