@@ -1,0 +1,36 @@
+#! /usr/bin/env perl6
+
+use v6.c;
+
+use Ebuilder;
+use WWW;
+
+sub MAIN
+{
+	# Get ecosystem META.list
+	my Str $meta-list = get "https://raw.githubusercontent.com/perl6/ecosystem/master/META.list";
+
+	for $meta-list.lines -> $line {
+		try {
+			CATCH {
+				default {
+					say "Failed $line: " ~ .Str;
+					next;
+				}
+			}
+
+			$line
+				==> get()
+				==> from-json()
+				==> my %meta
+				;
+
+			my Str $ebuild = make-ebuild(%meta);
+			my Str $atom-name = atom-name(%meta<name>, 9999);
+
+			spurt("{$atom-name}.ebuild", $ebuild);
+
+			say "Saved $atom-name";
+		}
+	}
+}
