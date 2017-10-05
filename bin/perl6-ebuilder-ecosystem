@@ -19,17 +19,24 @@ sub MAIN
 				}
 			}
 
+			# Get meta
 			$line
 				==> get()
 				==> from-json()
 				==> my %meta
 				;
 
+			# TODO
+			# Check the git repo itself to find out if there's tagged releases,
+			# and create a specific ebuild for every release if they have
+
 			my Str $ebuild = make-ebuild(%meta);
 			my Str $atom-name = atom-name(%meta<name>, 9999);
 
+			# Save ebuild
 			spurt("{$atom-name}.ebuild", $ebuild);
 
+			# Rejoice
 			say "Saved $atom-name";
 		}
 	}
