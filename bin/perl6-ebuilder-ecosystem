@@ -5,23 +5,37 @@ use v6.c;
 use Ebuilder;
 use HTTP::UserAgent;
 
-sub MAIN
+multi sub MAIN()
+{
+	MAIN("https://raw.githubusercontent.com/perl6/ecosystem/master/META.list");
+}
+
+multi sub MAIN(Str $url where /^https?:/)
 {
 	# Get ecosystem META.list
 	my HTTP::UserAgent $ua .= new;
-	my $response = $ua.get("https://raw.githubusercontent.com/perl6/ecosystem/master/META.list");
+	my $response = $ua.get($url);
 
 	if (!$response.is-success) {
 		die $response.status-line;
 	}
 
-	my Str $meta-list = $response.content;
+	parse-list($response.content);
+}
 
-	for $meta-list.lines -> $line {
+multi sub MAIN(Str $path)
+{
+	parse-list(slurp $path);
+}
+
+sub parse-list($list)
+{
+	my HTTP::UserAgent $ua .= new;
+
+	for $list.lines -> $line {
 		try {
 			CATCH {
 				default {
-					say "Failed $line: " ~ .Str;
 					next;
 				}
 			}
@@ -39,7 +53,7 @@ sub MAIN
 			# Check the git repo itself to find out if there's tagged releases,
 			# and create a specific ebuild for every release if they have
 
-			my Str $ebuild = try make-ebuild(%meta) // die "nope";
+			my Str $ebuild = make-ebuild(%meta);
 			my Str $atom-name = atom-name(%meta<name>, 9999);
 
 			# Save ebuild
