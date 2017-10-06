@@ -87,7 +87,11 @@ SLOT="0"
 KEYWORDS="~*"
 IUSE=""
 
-DEPEND=""
+DEPEND="dev-perl/p6-zef"
 RDEPEND="{{ dependencies }}"
+
+pkg_install() {
+	zef --install-to=/usr/share/perl6/site install .
+}
 	EOF
 }
